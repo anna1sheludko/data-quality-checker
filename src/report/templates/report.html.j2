@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Data Quality Report — {{ ctx.source_name }}</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f4f1ea;
+    --panel: #fbf8f3;
+    --ink: #1b2b25;
+    --ink-soft: #435751;
+    --muted: #6d7b74;
+    --green: #4d7a60;
+    --green-deep: #2b453a;
+    --terracotta: #b36b4d;
+    --critical: #b91c1c;
+    --warning: #c2830a;
+    --info: #2563eb;
+    --ok: #4d7a60;
+    --line: rgba(31, 52, 45, 0.12);
+    --mono: "JetBrains Mono", monospace;
+    --serif: "Cormorant Garamond", Georgia, serif;
+    --sans: "Inter", sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.65;
+    padding: 56px 24px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container { max-width: 960px; margin: 0 auto; }
+
+  /* ── Header ── */
+  .report-head {
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 40px;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--terracotta);
+    margin-bottom: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .eyebrow::before {
+    content: "";
+    width: 28px;
+    height: 1px;
+    background: var(--terracotta);
+    opacity: 0.6;
+  }
+
+  h1 {
+    font-family: var(--serif);
+    font-size: 48px;
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--green-deep);
+    margin-bottom: 10px;
+  }
+  h1 em {
+    font-style: italic;
+    font-weight: 500;
+    color: var(--green);
+  }
+
+  .head-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-top: 18px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+  .head-meta span strong {
+    color: var(--ink-soft);
+    font-weight: 600;
+    margin-right: 6px;
+  }
+
+  /* ── Overall summary ── */
+  .summary {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 48px;
+  }
+
+  .kpi {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .kpi-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .kpi-value {
+    font-family: var(--serif);
+    font-size: 42px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  .kpi-desc {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  .kpi.overall { grid-column: span 1; padding: 26px 28px; }
+  .kpi.overall .kpi-value {
+    font-size: 28px;
+    font-family: var(--sans);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .kpi.overall .dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 5px rgba(0,0,0,0.06);
+  }
+
+  .kpi.critical .kpi-value { color: var(--critical); }
+  .kpi.critical .dot { background: var(--critical); box-shadow: 0 0 0 5px rgba(185,28,28,0.14); }
+  .kpi.warning .kpi-value { color: var(--warning); }
+  .kpi.warning .dot { background: var(--warning); box-shadow: 0 0 0 5px rgba(194,131,10,0.14); }
+  .kpi.info .kpi-value { color: var(--info); }
+  .kpi.info .dot { background: var(--info); box-shadow: 0 0 0 5px rgba(37,99,235,0.14); }
+  .kpi.ok .kpi-value { color: var(--ok); }
+  .kpi.ok .dot { background: var(--ok); box-shadow: 0 0 0 5px rgba(77,122,96,0.14); }
+
+  /* ── Section ── */
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .section-head h2 {
+    font-family: var(--serif);
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--green-deep);
+  }
+  .section-head span {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* ── Check rows ── */
+  .check-row {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+
+  .check-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 22px;
+    cursor: default;
+  }
+
+  .check-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .check-name {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    text-transform: lowercase;
+  }
+  .check-name::before {
+    content: "//";
+    color: var(--terracotta);
+    font-weight: 700;
+    margin-right: 6px;
+  }
+
+  .check-msg {
+    font-size: 13px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .pill::before {
+    content: "";
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  .pill.ok { background: rgba(77,122,96,0.12); color: var(--ok); }
+  .pill.info { background: rgba(37,99,235,0.12); color: var(--info); }
+  .pill.warning { background: rgba(194,131,10,0.14); color: var(--warning); }
+  .pill.critical { background: rgba(185,28,28,0.12); color: var(--critical); }
+
+  .check-body {
+    padding: 0 22px 20px;
+    border-top: 1px solid var(--line);
+    padding-top: 18px;
+  }
+
+  .issue-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .issue-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #fff;
+    border-radius: 8px;
+    border-left: 3px solid var(--line);
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  .issue-item.info { border-left-color: var(--info); }
+  .issue-item.warning { border-left-color: var(--warning); }
+  .issue-item.critical { border-left-color: var(--critical); background: #fef7f7; }
+
+  .issue-col {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--bg);
+    color: var(--green-deep);
+    padding: 3px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .issue-text { flex: 1; }
+
+  .no-issues {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ok);
+    padding: 6px 0;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Footer ── */
+  footer {
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+  footer .brand { color: var(--green-deep); font-weight: 600; }
+
+  @media (max-width: 720px) {
+    body { padding: 32px 16px; }
+    h1 { font-size: 34px; }
+    .summary { grid-template-columns: 1fr 1fr; }
+    .check-head { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Header -->
+    <header class="report-head">
+      <div class="eyebrow">Data Quality Report</div>
+      <h1>From data <em>to insight.</em></h1>
+      <div class="head-meta">
+        <span><strong>source</strong>{{ ctx.source_file }}</span>
+        <span><strong>rows</strong>{{ "{:,}".format(ctx.total_rows) }}</span>
+        <span><strong>columns</strong>{{ ctx.total_columns }}</span>
+        <span><strong>generated</strong>{{ ctx.generated_at.strftime('%Y-%m-%d %H:%M') }}</span>
+      </div>
+    </header>
+
+    <!-- Summary -->
+    <section class="summary">
+      <div class="kpi overall {{ ctx.overall_severity }}">
+        <div class="kpi-label">Overall</div>
+        <div class="kpi-value"><span class="dot"></span>{{ ctx.overall_severity.upper() }}</div>
+        <div class="kpi-desc">{{ ctx.total_issues }} issue{{ "s" if ctx.total_issues != 1 else "" }} detected</div>
+      </div>
+      <div class="kpi critical">
+        <div class="kpi-label">Critical</div>
+        <div class="kpi-value">{{ ctx.total_critical }}</div>
+      </div>
+      <div class="kpi warning">
+        <div class="kpi-label">Warnings</div>
+        <div class="kpi-value">{{ ctx.total_warnings }}</div>
+      </div>
+      <div class="kpi info">
+        <div class="kpi-label">Info</div>
+        <div class="kpi-value">{{ ctx.total_info }}</div>
+      </div>
+    </section>
+
+    <!-- Checks -->
+    <section>
+      <div class="section-head">
+        <h2>Checks</h2>
+        <span>{{ ctx.results | length }} executed</span>
+      </div>
+
+      {% for result in ctx.results %}
+      <div class="check-row">
+        <div class="check-head">
+          <div class="check-title">
+            <span class="check-name">{{ result.name }}</span>
+            <span class="pill {{ result.severity.value }}">
+              {{ "passed" if result.passed else result.severity.value }}
+            </span>
+          </div>
+          <span class="check-msg">{{ result.message }}</span>
+        </div>
+
+        {% if result.issues %}
+        <div class="check-body">
+          <ul class="issue-list">
+            {% for issue in result.issues %}
+            <li class="issue-item {{ issue.severity.value }}">
+              {% if issue.column %}
+              <span class="issue-col">{{ issue.column }}</span>
+              {% endif %}
+              <span class="issue-text">{{ issue.message }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <span class="brand">Data Quality Checker</span>
+      <span>{{ ctx.source_name }} · {{ ctx.generated_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+    </footer>
+
+  </div>
+</body>
+</html>

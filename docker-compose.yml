@@ -1,0 +1,14 @@
+services:
+  dqc:
+    build: .
+    image: data-quality-checker:1.0
+    container_name: dqc
+    volumes:
+      - ./data:/app/data:ro
+      - ./reports:/app/reports
+      - ./logs:/app/logs
+    environment:
+      - PYTHONUNBUFFERED=1
+    # Domyślnie pokazuje pomoc. Żeby uruchomić analizę:
+    #   docker compose run --rm dqc --input data/sample_messy.csv --no-banner
+    command: ["--help"]

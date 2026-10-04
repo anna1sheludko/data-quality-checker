@@ -1,0 +1,34 @@
+order_id,customer_email,order_date,product,quantity,unit_price,total
+1001,anna@example.com,2026-01-15,Widget A,2,49.99,99.98
+1002,,2026-01-16,Widget B,1,29.99,29.99
+1003,PIOTR@EXAMPLE.COM,16/01/2026,Widget A,3,49.99,149.97
+1004,maria@example.com,2026-01-17,Widget C,-1,19.99,-19.99
+1005,jan@example.com,2026-01-18,Widget B,2,29.99,59.98
+1005,jan@example.com,2026-01-18,Widget B,2,29.99,59.98
+1006,kate@example.com,2026-01-19,,1,9.99,9.99
+1007,tomek@example.com,2026-01-20,Widget A,1,49.99,49.99
+1008,,2026-01-21,Widget C,5,19.99,99.95
+1009,ewa@example.com,2026-01-22,Widget B,1,29.99,
+1010,MAREK@EXAMPLE.COM,23/01/2026,Widget A,2,49.99,99.98
+1011,zofia@example.com,2026-01-24,Widget C,3,19.99,59.97
+1012,,2026-01-25,Widget B,2,29.99,59.98
+1013,kamil@example.com,,Widget A,1,49.99,49.99
+1014,ola@example.com,2026-01-27,,4,9.99,39.96
+1015,piotr@example.com,2026-01-28,Widget C,0,19.99,0
+1016,ANIA@EXAMPLE.COM,29/01/2026,Widget B,3,29.99,89.97
+1017,mateusz@example.com,2026-01-30,Widget A,1,49.99,49.99
+1017,mateusz@example.com,2026-01-30,Widget A,1,49.99,49.99
+1017,mateusz@example.com,2026-01-30,Widget A,1,49.99,49.99
+1018,kasia@example.com,2026-01-31,Widget B,2,-29.99,-59.98
+1019,tomasz@example.com,2026-02-01,Widget C,5,19.99,99.95
+1020,,01/02/2026,Widget A,2,49.99,99.98
+1021,magda@example.com,2026-02-02,Widget B,1,29.99,
+1022,bartek@example.com,2026-02-03,Widget C,3,19.99,59.97
+1023,ewa@example.com,03/02/2026,Widget A,1,49.99,49.99
+1024,,2026-02-04,Widget B,4,29.99,119.96
+1025,filip@example.com,2026-02-05,,2,9.99,19.98
+1026,gosia@example.com,2026-02-06,Widget C,1,19.99,19.99
+1027,pawel@example.com,07/02/2026,Widget A,3,49.99,149.97
+1028,ZUZIA@EXAMPLE.COM,2026-02-08,Widget B,2,29.99,59.98
+1029,hubert@example.com,2026-02-09,Widget C,-2,19.99,-39.98
+1030,iga@example.com,2026-02-10,Widget A,1,49.99,49.99

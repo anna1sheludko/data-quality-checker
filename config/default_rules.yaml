@@ -1,0 +1,61 @@
+# Data Quality Checker — default rules
+
+checks:
+  duplicates:
+    enabled: true
+    subset: null              # null = wszystkie kolumny
+
+  missing:
+    enabled: true
+    threshold_warning: 10     # % pustych → warning
+    threshold_critical: 50    # % pustych → critical
+
+  types:
+    enabled: true
+    # Regex patterns dla typów
+    email_pattern: '^[\w\.-]+@[\w\.-]+\.\w+$'
+    phone_pattern: '^\+?[\d\s\-\(\)]{7,20}$'
+
+  outliers:
+    enabled: true
+    method: 'zscore'          # zscore | iqr
+    zscore_threshold: 3
+    iqr_multiplier: 1.5
+
+  consistency:
+    enabled: true
+    # Sprawdź spójność tekstu (wielkość liter)
+    check_case: true
+    check_whitespace: true
+
+  suspicious:
+    enabled: true
+    # Reguły dla konkretnych wzorców kolumn
+    rules:
+      - column_pattern: '.*price.*|.*amount.*|.*total.*'
+        check: '>= 0'
+        message: 'Cena/kwota nie może być ujemna'
+      - column_pattern: '.*date.*'
+        check: '<= today'
+        message: 'Data nie może być z przyszłości'
+      - column_pattern: '.*email.*'
+        check: 'valid_email'
+        message: 'Email musi być poprawny'
+
+report:
+  # Pola wyświetlane w raporcie
+  sections:
+    - summary
+    - duplicates
+    - missing
+    - types
+    - outliers
+    - consistency
+    - suspicious
+    - recommendations
+
+  # Kolory (do HTML)
+  colors:
+    critical: '#d13438'
+    warning: '#fbbf24'
+    ok: '#10b981'
